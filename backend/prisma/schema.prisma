@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String?
+  name           String
+  avatar         String?
+  isEmailVerified Boolean  @default(false)
+  role           Role      @default(USER)
+  googleId       String?   @unique
+  
+  // Relations
+  trips          Trip[]    @relation("UserTrips")
+  sharedTrips    SharedTrip[]
+  sessions       Session[]
+  notifications  Notification[]
+  journalEntries JournalEntry[]
+  otps           OTPVerification[]
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}
+
+model OTPVerification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  purpose   String   // 'EMAIL_VERIFICATION' or 'PASSWORD_RESET'
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Trip {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  coverImage  String?
+  startDate   DateTime
+  endDate     DateTime
+  budget      Float     @default(0)
+  travelers   Int       @default(1)
+  status      TripStatus @default(PLANNING)
+  userId      String
+  user        User      @relation("UserTrips", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  stops       TripStop[]
+  activities  Activity[]
+  expenses    Expense[]
+  packingList PackingItem[]
+  journal     JournalEntry[]
+  shares      SharedTrip[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum TripStatus {
+  PLANNING
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+model TripStop {
+  id          String   @id @default(uuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  destinationId String?
+  destination Destination? @relation(fields: [destinationId], references: [id], onDelete: SetNull)
+  city        String
+  country     String
+  arrivalDate DateTime
+  nights      Int
+  order       Int
+  createdAt   DateTime @default(now())
+}
+
+model Destination {
+  id        String   @id @default(uuid())
+  name      String
+  country   String
+  image     String?
+  rating    Float    @default(0)
+  stops     TripStop[]
+  createdAt DateTime @default(now())
+}
+
+model Activity {
+  id          String   @id @default(uuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  title       String
+  category    String   // Food, Adventure, Culture, etc.
+  day         Int
+  time        String?
+  location    String?
+  cost        Float    @default(0)
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  label       String
+  category    String
+  amount      Float
+  date        DateTime
+  createdAt   DateTime @default(now())
+}
+
+model PackingItem {
+  id          String   @id @default(uuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  label       String
+  category    String
+  isPacked    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model JournalEntry {
+  id          String   @id @default(uuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  body        String   @db.Text
+  day         Int
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SharedTrip {
+  id          String   @id @default(uuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  ownerId     String
+  user        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  uniqueLink  String   @unique
+  accessLevel String   @default("VIEW") // VIEW, EDIT
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Analytics {
+  id        String   @id @default(uuid())
+  event     String
+  metadata  String?  @db.Text
+  createdAt DateTime @default(now())
+}

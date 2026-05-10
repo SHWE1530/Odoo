@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 6%;
+    --foreground: 213 100% 95%;
+    --card: 222 47% 9%;
+    --card-foreground: 213 100% 95%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 100% 95%;
+    --primary: 243 75% 70%;
+    --primary-foreground: 222 47% 6%;
+    --secondary: 271 91% 86%;
+    --secondary-foreground: 222 47% 6%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 213 100% 95%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 243 75% 70%;
+    --radius: 1rem;
+  }
+}
+
+.glass-dark {
+  @apply bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+}
+
+.glass-card {
+  @apply bg-[#171f33]/50 backdrop-blur-xl border border-white/10 rounded-2xl transition-all duration-300;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#c0c1ff] to-[#ddb7ff];
+}
+
+.gradient-hero {
+  @apply bg-gradient-to-br from-[#6366f1] via-[#8b5cf6] to-[#a855f7];
+}
+
+.glow-indigo {
+  box-shadow: 0 0 40px -10px rgba(99, 102, 241, 0.3);
+}
+
+body {
+  background-color: #0b1326;
+  color: #dae2fd;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Hanken Grotesk', sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #060e20;
+}
+::-webkit-scrollbar-thumb {
+  background: #222a3d;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2d3449;
+}
